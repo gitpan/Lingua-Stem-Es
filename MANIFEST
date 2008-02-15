@@ -1,0 +1,9 @@
+Changes
+Makefile.PL
+MANIFEST
+README
+t/Lingua-Stem-Es.t
+t/voc.txt
+t/output.txt
+lib/Lingua/Stem/Es.pm
+META.yml                                 Module meta-data (added by MakeMaker)

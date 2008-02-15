@@ -1,0 +1,6 @@
+Revision history for Perl extension Lingua::Stem::Es.
+
+0.01  Sun Feb 10 11:40:52 2008
+	- original version; created by h2xs 1.23 with options
+		-AX --use-new-tests -n Lingua::Stem::Es
+
