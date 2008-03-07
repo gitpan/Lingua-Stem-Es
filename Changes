@@ -1,5 +1,10 @@
 Revision history for Perl extension Lingua::Stem::Es.
 
+0.02  Thu Mar 7, 2008
+    - Added use warnings
+    - Changed encoding from iso-8859-15 to UTF-8
+    - Added use utf8
+
 0.01  Sun Feb 10 11:40:52 2008
 	- original version; created by h2xs 1.23 with options
 		-AX --use-new-tests -n Lingua::Stem::Es

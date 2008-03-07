@@ -1,7 +1,11 @@
 package Lingua::Stem::Es;
 
 use Carp;
+
+use warnings;
 use strict;
+
+use utf8;
 
 require Exporter;
 
@@ -11,15 +15,15 @@ our %EXPORT_TAGS = ();
 our @EXPORT_OK   = qw (stem stem_word clear_stem_cache stem_caching);
 our @EXPORT      = ();
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 our $DEBUG = 0;
 
 my $Stem_Caching = 0;
 my $Stem_Cache   = {};
 
-my $vowels     = 'aeiou·ÈÌÛ˙¸';
-my $consonants = 'bcdfghjklmnÒpqrstvwxyz';
+my $vowels     = 'aeiou√°√©√≠√≥√∫√º';
+my $consonants = 'bcdfghjklmn√±pqrstvwxyz';
 
 my $revowel      = qr/[$vowels]/;
 my $reconsonants = qr/[$consonants]/;
@@ -80,13 +84,13 @@ sub stem_word {
     print "*****************\nOriginal: $word\n" if $DEBUG;
 
     # Flatten case
-    $word =~ s/¡/·/g;
-    $word =~ s/…/È/g;
-    $word =~ s/Õ/Ì/g;
-    $word =~ s/”/Û/g;
-    $word =~ s/⁄/˙/g;
-    $word =~ s/‹/¸/g;
-    $word =~ s/—/Ò/g;
+    $word =~ s/√Å/√°/g;
+    $word =~ s/√â/√©/g;
+    $word =~ s/√ç/√≠/g;
+    $word =~ s/√ì/√≥/g;
+    $word =~ s/√ö/√∫/g;
+    $word =~ s/√ú/√º/g;
+    $word =~ s/√ë/√±/g;
     $word = lc $word;
     print "Flatened word: $word\n" if $DEBUG;
 
@@ -96,8 +100,9 @@ sub stem_word {
     }
 
     # Remove punctuation
-    $word =~ s/[^a-z·ÈÌÛ˙¸Ò]//g;
+    $word =~ s/[^$vowels$consonants]//g;
     return unless $word;
+    print "Removed punctuation: $word\n" if $DEBUG;
 
     my $RV = define_RV($word);
     my $suffix;
@@ -109,7 +114,7 @@ sub stem_word {
     # Search for the longest among the following suffixes:
     # me se sela selo selas selos la le lo las les los nos
     # and delete it, if it comes after one of
-    # a) iÈndo ·ndo ·r Èr Ìr
+    # a) i√©ndo √°ndo √°r √©r √≠r
     # b) ando iendo ar er ir
     # c) yendo following u
     # in RV. In the case of c), yendo must lie in RV, but the preceding u can 
@@ -121,16 +126,16 @@ sub stem_word {
         my $pronoun =
           qr/(selas|selos|sela|selo|las|les|los|nos|me|se|la|le|lo)$/;
 
-        if ( ($suffix) = $RV =~ /(?:·ndo|iÈndo|·r|Èr|Ìr)($pronoun)$/ ) {
+        if ( ($suffix) = $RV =~ /(?:√°ndo|i√©ndo|√°r|√©r|√≠r)($pronoun)$/ ) {
 
             # Case a)
             $word =~ s/$suffix$//;
-            $word =~ s/·/a/;
-            $word =~ s/È/e/;
-            $word =~ s/Ì/i/;
-            $word =~ s/Û/o/;
-            $word =~ s/˙/u/;
-            $word =~ s/¸/u/;
+            $word =~ s/√°/a/;
+            $word =~ s/√©/e/;
+            $word =~ s/√≠/i/;
+            $word =~ s/√≥/o/;
+            $word =~ s/√∫/u/;
+            $word =~ s/√º/u/;
             print "Step 0 case a: $word\n" if $DEBUG;
         }
         elsif ( ($suffix) = $RV =~ /(?:ando|iendo|ar|er|ir)($pronoun)$/ ) {
@@ -175,10 +180,10 @@ sub stem_word {
         print "Step 1 case 1: $word\n" if $DEBUG;
     }
     elsif ( ($suffix) =
-        $R2 =~ /(aciones|adores|adoras|adora|antes?|ancias?|aciÛn|ador)$/ )
+        $R2 =~ /(aciones|adores|adoras|adora|antes?|ancias?|aci√≥n|ador)$/ )
     {
 
-        # adora ador aciÛn adoras adores aciones
+        # adora ador aci√≥n adoras adores aciones
         # delete if in R2
         # if preceded by ic, delete if in R2
         if ( $R2 =~ /ic$suffix$/ ) {
@@ -189,16 +194,16 @@ sub stem_word {
         }
         print "Step 1 case 2: $word\n" if $DEBUG;
     }
-    elsif ( ($suffix) = $R2 =~ /(logÌas?)$/ ) {
+    elsif ( ($suffix) = $R2 =~ /(log√≠as?)$/ ) {
 
-        # logÌa logÌas
+        # log√≠a log√≠as
         # replace with log if in R2
         $word =~ s/$suffix$/log/;
         print "Step 1 case 3: $word\n" if $DEBUG;
     }
-    elsif ( ($suffix) = $R2 =~ /(uciones|uciÛn)$/ ) {
+    elsif ( ($suffix) = $R2 =~ /(uciones|uci√≥n)$/ ) {
 
-        # uciÛn uciones
+        # uci√≥n uciones
         # replace with u if in R2
         $word =~ s/$suffix$/u/;
         print "Step 1 case 4: $word\n" if $DEBUG;
@@ -269,12 +274,12 @@ sub stem_word {
     # Search for the longest among the following suffixes in RV, and
     # if found, delete if preceded by u. (Note that the preceding u
     # need not be in RV).
-    # ya ye yan yen yeron yendo yo yÛ yas yes yais yamos
+    # ya ye yan yen yeron yendo yo y√≥ yas yes yais yamos
     # Do step 2a if no ending was removed by step 1
-    elsif ($word =~ /u(yeron|yendo|yamos|yais|ya[ns]?|ye[ns]?|yo|yÛ)$/
-        && $RV =~ /(yeron|yendo|yamos|yais|ya[ns]?|ye[ns]?|yo|yÛ)$/ )
+    elsif ($word =~ /u(yeron|yendo|yamos|yais|ya[ns]?|ye[ns]?|yo|y√≥)$/
+        && $RV =~ /(yeron|yendo|yamos|yais|ya[ns]?|ye[ns]?|yo|y√≥)$/ )
     {
-        $word =~ s/u(yeron|yendo|yamos|yais|ya[ns]?|ye[ns]?|yo|yÛ)$/u/;
+        $word =~ s/u(yeron|yendo|yamos|yais|ya[ns]?|ye[ns]?|yo|y√≥)$/u/;
         print "Step 2a: $word\n" if $DEBUG;
     }
 
@@ -288,13 +293,13 @@ sub stem_word {
 
     elsif (
         ($suffix) =
-        $RV =~ /(iÈsemos|iÈramos|irÌamos|erÌamos|arÌamos|·semos|
-	·ramos|·bamos|isteis|asteis|ieseis|ierais|iremos|irÌais|eremos|erÌais|aremos|
-	arÌais|aseis|arais|abais|ieses|ieras|iendo|ieron|iesen|ieran|irÈis|irÌas|irÌan|        #ancias?|
-	erÈis|erÌas|erÌan|arÈis|arÌas|arÌan|Ìamos|imos|amos|idos|ados|Ìais|ases|aras|idas|     #antes?|
-	adas|abas|ando|aron|asen|aran|aban|iste|aste|iese|iera|irÌa|ir·s|ir·n|erÌa|er·s|er·n|
-	arÌa|ar·s|ar·n|·is|Ìas|ido|ado|Ìan|ase|ara|ida|ada|aba|irÈ|ir·|erÈ|er·|arÈ|
-	ar·|Ìs|as|ir|er|ar|iÛ|an|id|ed|ad|Ìa)$/x
+        $RV =~ /(i√©semos|i√©ramos|ir√≠amos|er√≠amos|ar√≠amos|√°semos|
+	√°ramos|√°bamos|isteis|asteis|ieseis|ierais|iremos|ir√≠ais|eremos|er√≠ais|aremos|
+	ar√≠ais|aseis|arais|abais|ieses|ieras|iendo|ieron|iesen|ieran|ir√©is|ir√≠as|ir√≠an|        #ancias?|
+	er√©is|er√≠as|er√≠an|ar√©is|ar√≠as|ar√≠an|√≠amos|imos|amos|idos|ados|√≠ais|ases|aras|idas|     #antes?|
+	adas|abas|ando|aron|asen|aran|aban|iste|aste|iese|iera|ir√≠a|ir√°s|ir√°n|er√≠a|er√°s|er√°n|
+	ar√≠a|ar√°s|ar√°n|√°is|√≠as|ido|ado|√≠an|ase|ara|ida|ada|aba|ir√©|ir√°|er√©|er√°|ar√©|
+	ar√°|√≠s|as|ir|er|ar|i√≥|an|id|ed|ad|√≠a)$/x
       )
     {
 
@@ -302,9 +307,9 @@ sub stem_word {
         $word =~ s/$suffix$//;
         print "Step 2b1: $word\n" if $DEBUG;
     }
-    elsif ( ($suffix) = $RV =~ /(emos|Èis|en|es)$/ ) {
+    elsif ( ($suffix) = $RV =~ /(emos|√©is|en|es)$/ ) {
 
-        # en es Èis emos
+        # en es √©is emos
         # delete, and if preceded by gu delete the u (the gu need not be in RV)
         $word     =~ /gu$suffix$/
           ? $word =~ s/gu$suffix$/g/
@@ -322,22 +327,22 @@ sub stem_word {
 
     $RV = define_RV($word);
 
-    if ( ($suffix) = $RV =~ /(os|[ao·ÌÛ])$/ ) {
+    if ( ($suffix) = $RV =~ /(os|[ao√°√≠√≥])$/ ) {
 
-        # os a o · Ì Û
+        # os a o √° √≠ √≥
         # delete if in RV
         $word =~ s/$suffix$//;
         print "Step 3a: $word\n" if $DEBUG;
     }
-    elsif ( $RV =~ /[eÈ]$/ ) {
+    elsif ( $RV =~ /[e√©]$/ ) {
 
-        # e È
+        # e √©
         # delete if in RV, and if preceded by gu with the u in RV, delete the u.
-        if ( $word =~ /gu[eÈ]$/ && $RV =~ /u[eÈ]$/ ) {
-            $word =~ s/gu[eÈ]$/g/;
+        if ( $word =~ /gu[e√©]$/ && $RV =~ /u[e√©]$/ ) {
+            $word =~ s/gu[e√©]$/g/;
         }
         else {
-            $word =~ s/[eÈ]$//;
+            $word =~ s/[e√©]$//;
         }
         print "Step 3b: $word\n" if $DEBUG;
     }
@@ -346,11 +351,11 @@ sub stem_word {
     ###########              Step 4                  ###########
     ############################################################
     # Remove the acute accents
-    $word =~ s/·/a/g;
-    $word =~ s/È/e/g;
-    $word =~ s/Ì/i/g;
-    $word =~ s/Û/o/g;
-    $word =~ s/˙/u/g;
+    $word =~ s/√°/a/g;
+    $word =~ s/√©/e/g;
+    $word =~ s/√≠/i/g;
+    $word =~ s/√≥/o/g;
+    $word =~ s/√∫/u/g;
     print "Step 4: $word\n" if $DEBUG;
 
     return $word;
@@ -474,7 +479,7 @@ http://snowball.tartarus.org/algorithms/spanish/stemmer.html
 
 The interface was made to follow the conventions set by the L<Lingua::Stem>
 module by Benjamin Franz.
-This spanish version is based on the work of SÈbastien Darribere-Pleyt 
+This spanish version is based on the work of S√©bastien Darribere-Pleyt 
 (French Version).
 
 =head1 METHODS
@@ -546,7 +551,7 @@ Julio Fraire, E<lt>julio.fraire@gmail.comE<gt>
 
 Copyright (c) 2001, Dr Martin Porter L<http://snowball.tartarus.org/>
 
-Copyright (C) 2004 by SÈbastien Darribere-Pleyt <sebastien.darribere@lefute.com>
+Copyright (C) 2004 by S√©bastien Darribere-Pleyt <sebastien.darribere@lefute.com>
 
 Copyright (C) 2008 by Julio Fraire, <julio.fraire@gmail.com>
 
