@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Lingua-Stem-Es
-version:             0.02
+version:             0.03
 abstract:            Perl Spanish Stemming
 license:             ~
 author:              
@@ -8,7 +8,6 @@ author:
 generated_by:        ExtUtils::MakeMaker version 6.42
 distribution_type:   module
 requires:     
-    Test::Exception:               0
 meta-spec:
     url:     http://module-build.sourceforge.net/META-spec-v1.3.html
     version: 1.3

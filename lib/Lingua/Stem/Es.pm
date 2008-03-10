@@ -15,7 +15,7 @@ our %EXPORT_TAGS = ();
 our @EXPORT_OK   = qw (stem stem_word clear_stem_cache stem_caching);
 our @EXPORT      = ();
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 our $DEBUG = 0;
 
@@ -201,11 +201,11 @@ sub stem_word {
         $word =~ s/$suffix$/log/;
         print "Step 1 case 3: $word\n" if $DEBUG;
     }
-    elsif ( ($suffix) = $R2 =~ /(uciones|ución)$/ ) {
+    elsif ( ($suffix) = $R2 =~ /uci(ones|ón)$/ ) {
 
         # ución uciones
         # replace with u if in R2
-        $word =~ s/$suffix$/u/;
+        $word =~ s/uci$suffix$/u/;
         print "Step 1 case 4: $word\n" if $DEBUG;
     }
     elsif ( ($suffix) = $R2 =~ /(encias?)$/ ) {
