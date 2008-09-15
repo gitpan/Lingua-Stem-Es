@@ -15,7 +15,7 @@ our %EXPORT_TAGS = ();
 our @EXPORT_OK   = qw (stem stem_word clear_stem_cache stem_caching);
 our @EXPORT      = ();
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 our $DEBUG = 0;
 
@@ -101,7 +101,7 @@ sub stem_word {
 
     # Remove punctuation
     $word =~ s/[^$vowels$consonants]//g;
-    return unless $word;
+    return '' unless $word;
     print "Removed punctuation: $word\n" if $DEBUG;
 
     my $RV = define_RV($word);
